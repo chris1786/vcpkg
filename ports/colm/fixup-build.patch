@@ -1,0 +1,231 @@
+diff --git a/Makefile.am b/Makefile.am
+index 0eb09cb4..0c71bac1 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -19,8 +19,6 @@
+ # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ # SOFTWARE.
+ 
+-SUBDIRS = src doc test
++SUBDIRS = src doc
+ 
+-dist_doc_DATA = colm.vim
+-EXTRA_DIST = colm.vim sedsubst
+ ACLOCAL_AMFLAGS = -I m4
+diff --git a/configure.ac b/configure.ac
+index 4f4c4d1a..771d8d05 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -418,12 +418,17 @@ AC_CHECK_FUNC(fopencookie,
+ 	[]
+ )
+ 
+-mkdir -p src/include
+-test -e src/include/colm || ln -s .. src/include/colm
+ 
+ echo "#define VERSION \"$VERSION\"" > src/version.h
+ echo "#define PUBDATE \"$PUBDATE\"" >> src/version.h
+ 
++if test "x$enable_static" = "xyes"; then
++	AC_DEFINE([LINK_STATIC], [1], [Link static lib when invoking C compile and link])
++fi
++
++if test "x$enable_shared" = "xyes"; then
++	AC_DEFINE([LINK_SHARED], [1], [Link shared lib when invoking C compile and link])
++fi
+ 
+ dnl
+ dnl Wrap up.
+@@ -431,18 +436,32 @@ dnl
+ 
+ AC_SUBST(SED_SUBST)
+ AC_CONFIG_HEADERS([src/config.h src/defs.h])
++m4_foreach_w([header],
++	[
++		config.h
++		bytecode.h
++		defs.h
++		debug.h
++		pool.h
++		input.h
++		pdarun.h
++		map.h
++		type.h
++		tree.h
++		struct.h
++		program.h
++		colm.h
++		internal.h
++		colmex.h
++	],
++	[AC_CONFIG_LINKS(src/include/colm/header:src/header)]
++)
+ AC_OUTPUT([
+ 	Makefile
+ 	src/aapl/Makefile
+ 	src/libfsm/Makefile
+ 	src/cgil/Makefile
+ 	src/Makefile
+-	test/Makefile
+-	test/aapl.d/Makefile
+-	test/colm.d/Makefile
+-	test/rlhc.d/Makefile
+-	test/rlparse.d/Makefile
+-	test/trans.d/Makefile
+ 	doc/Makefile
+ 	doc/colm/Makefile
+ ])
+diff --git a/src/Makefile.am b/src/Makefile.am
+index c5fb6efa..905997b8 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -185,7 +185,6 @@ colm_LDADD = libprog.a -lcolm
+ 
+ CLEANFILES = \
+ 	version.h \
+-	include/colm \
+ 	gen/parse1.c \
+ 	gen/if1.h \
+ 	gen/if1.cc \
+@@ -199,6 +198,9 @@ CLEANFILES = \
+ 	gen/bootstrap2.pack \
+ 	gen/bootstrap3.pack
+ 
++distclean-local:
++	-rm -rf include
++
+ EXTRA_DIST = prog.lm colm.lm loadfinal.cc colm-wrap.sh
+ 
+ colm-wrap: colm-wrap.sh
+diff --git a/src/compiler.cc b/src/compiler.cc
+index c2ce141f..9d8ff77e 100644
+--- a/src/compiler.cc
++++ b/src/compiler.cc
+@@ -26,7 +26,9 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdbool.h>
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
++#endif
+ #include <assert.h>
+ #include <iostream>
+ 
+diff --git a/src/ctinput.cc b/src/ctinput.cc
+index f8267487..41bfc319 100644
+--- a/src/ctinput.cc
++++ b/src/ctinput.cc
+@@ -22,7 +22,9 @@
+ 
+ #include <stdlib.h>
+ #include <string.h>
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
++#endif
+ #include <assert.h>
+ 
+ #include <iostream>
+diff --git a/src/input.c b/src/input.c
+index 564cdee1..61950a30 100644
+--- a/src/input.c
++++ b/src/input.c
+@@ -26,7 +26,9 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <assert.h>
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
++#endif
+ #include <stdbool.h>
+ 
+ #include <colm/pdarun.h>
+diff --git a/src/libfsm/fsmcond.cc b/src/libfsm/fsmcond.cc
+index b2339c12..dc4bbeb1 100644
+--- a/src/libfsm/fsmcond.cc
++++ b/src/libfsm/fsmcond.cc
+@@ -33,6 +33,7 @@
+ #include "parsedata.h"
+ 
+ #include <assert.h>
++#include <iso646.h>
+ #include <iostream>
+ 
+ long TransAp::condFullSize() 
+diff --git a/src/main.cc b/src/main.cc
+index 301fae91..b10a50b4 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -23,10 +23,16 @@
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <string.h>
++#ifdef HAVE_STRINGS_H
+ #include <strings.h>
++#else
++#define strcasecmp _stricmp
++#endif
+ #include <stdio.h>
+ #include <stdbool.h>
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
++#endif
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <iostream>
+@@ -485,7 +491,14 @@ void compileOutput( const char *argv0, const bool inSource, char *srcLocation )
+ 				" -I%s/../aapl"
+ 				" -I%s/include"
+ 				" -L%s"
++#if defined(LINK_STATIC)
+ 				" %s/libcolm.a",
++#elif defined(LINK_SHARED)
++				" %s/libcolm.so",
++#else
++#				error "must enabled at least one of shared or static libs"
++#endif
++
+ 				binaryFn, intermedFn, srcLocation,
+ 				srcLocation, location, location );
+ 	}
+diff --git a/src/print.c b/src/print.c
+index 363a7eea..ea063041 100644
+--- a/src/print.c
++++ b/src/print.c
+@@ -24,7 +24,9 @@
+ #include <stdlib.h>
+ #include <stdbool.h>
+ #include <stdio.h>
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
++#endif
+ #include <assert.h>
+ 
+ #include <colm/tree.h>
+diff --git a/src/stream.c b/src/stream.c
+index 0afde365..6c4e4e81 100644
+--- a/src/stream.c
++++ b/src/stream.c
+@@ -33,7 +33,9 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <assert.h>
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
++#endif
+ #include <stdbool.h>
+ 
+ #include <colm/pdarun.h>
+diff --git a/src/tree.c b/src/tree.c
+index c355720d..e2087f10 100644
+--- a/src/tree.c
++++ b/src/tree.c
+@@ -24,7 +24,9 @@
+ #include <stdlib.h>
+ #include <stdbool.h>
+ #include <stdio.h>
++#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
++#endif
+ #include <assert.h>
+ 
+ #include <colm/tree.h>
