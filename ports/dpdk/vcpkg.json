@@ -36,6 +36,20 @@
         "rdma-core"
       ]
     },
+    "pmd-crypto-ccp": {
+      "description": "Build the AMD CCP Crypto Poll Mode Drvier",
+      "supports": "linux",
+      "dependencies": [
+        "openssl"
+      ]
+    },
+    "pmd-crypto-openssl": {
+      "description": "Build the OpenSSL Crypto Poll Mode Driver",
+      "supports": "!windows",
+      "dependencies": [
+        "openssl"
+      ]
+    },
     "pmd-ipn3ke": {
       "description": "Build the IPN3KE Poll Mode Driver",
       "supports": "!windows",
