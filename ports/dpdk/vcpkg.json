@@ -36,22 +36,35 @@
         "rdma-core"
       ]
     },
+    "pmd-bnx2x": {
+      "description": "Build BNX2X Poll Mode Driver",
+      "supports": "!windows",
+      "dependencies": [
+        "zlib"
+      ]
+    },
+    "pmd-compress-zlib": {
+      "description": "Build ZLIB Compression Poll Mode Driver",
+      "dependencies": [
+        "zlib"
+      ]
+    },
     "pmd-crypto-ccp": {
-      "description": "Build the AMD CCP Crypto Poll Mode Drvier",
+      "description": "Build AMD CCP Crypto Poll Mode Driver",
       "supports": "linux",
       "dependencies": [
         "openssl"
       ]
     },
     "pmd-crypto-openssl": {
-      "description": "Build the OpenSSL Crypto Poll Mode Driver",
+      "description": "Build OpenSSL Crypto Poll Mode Driver",
       "supports": "!windows",
       "dependencies": [
         "openssl"
       ]
     },
     "pmd-ipn3ke": {
-      "description": "Build the IPN3KE Poll Mode Driver",
+      "description": "Build IPN3KE Poll Mode Driver",
       "supports": "!windows",
       "dependencies": [
         "dtc"
@@ -92,7 +105,7 @@
       ]
     },
     "rawdev-ifpga": {
-      "description": "Build the IFPGA Rawdev Driver",
+      "description": "Build IFPGA Rawdev Driver",
       "supports": "!windows",
       "dependencies": [
         "dtc"
