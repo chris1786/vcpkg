@@ -43,6 +43,13 @@
         "zlib"
       ]
     },
+    "pmd-compress-isal": {
+      "description": "Build ISA-L Compression Poll Mode Driver",
+      "supports": "!uwp & (x64 | (arm64 & linux))",
+      "dependencies": [
+        "isal"
+      ]
+    },
     "pmd-compress-zlib": {
       "description": "Build ZLIB Compression Poll Mode Driver",
       "dependencies": [
