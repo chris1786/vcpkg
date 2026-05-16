@@ -1,3 +1,17 @@
+diff --git a/app/dumpcap/meson.build b/app/dumpcap/meson.build
+index 69c016c780..57f3f1ace4 100644
+--- a/app/dumpcap/meson.build
++++ b/app/dumpcap/meson.build
+@@ -2,8 +2,7 @@
+ # Copyright(c) 2019 Microsoft Corporation
+ 
+ if not dpdk_conf.has('RTE_HAS_LIBPCAP')
+-    build = false
+-    reason = 'missing dependency, "libpcap"'
++    error('missing dependency: "libpcap"')
+ endif
+ 
+ if is_windows
 diff --git a/buildtools/pkg-config/meson.build b/buildtools/pkg-config/meson.build
 index b36add17e3..a0a265ad92 100644
 --- a/buildtools/pkg-config/meson.build
@@ -13,7 +27,7 @@ index b36add17e3..a0a265ad92 100644
              dpdk_drivers + dpdk_static_libraries +
              ['-Wl,--no-whole-archive'] + platform_flags
 diff --git a/config/meson.build b/config/meson.build
-index bbdad71ffc..e0a3ecc5f9 100644
+index bbdad71ffc..0ef6422cd3 100644
 --- a/config/meson.build
 +++ b/config/meson.build
 @@ -238,12 +238,10 @@ if meson.is_cross_build() and not meson.get_external_property('numa', true)
@@ -31,7 +45,7 @@ index bbdad71ffc..e0a3ecc5f9 100644
      endif
  endif
  
-@@ -269,28 +267,28 @@ if libarchive.found()
+@@ -269,18 +267,18 @@ if libarchive.found()
  endif
  
  # check for libbsd
@@ -53,18 +67,6 @@ index bbdad71ffc..e0a3ecc5f9 100644
  if openssl_dep.found()
      dpdk_conf.set('RTE_HAS_OPENSSL', 1)
  endif
- 
- # check for pcap
--pcap_dep = dependency('libpcap', required: false, method: 'pkg-config')
-+pcap_dep = disabler()
- pcap_lib = is_windows ? 'wpcap' : 'pcap'
- if not pcap_dep.found()
-     # pcap got a pkg-config file only in 1.9.0
--    pcap_dep = cc.find_library(pcap_lib, required: false)
-+    pcap_dep = disabler()
- endif
- if (pcap_dep.found() and cc.has_header('pcap.h', dependencies: pcap_dep)
-         and cc.links(min_c_code, dependencies: pcap_dep))
 diff --git a/drivers/common/mlx5/linux/meson.build b/drivers/common/mlx5/linux/meson.build
 index 3767e7a69b..9127dad034 100644
 --- a/drivers/common/mlx5/linux/meson.build
@@ -103,6 +105,252 @@ index f454788a9f..78dfd12d5c 100644
  endif
  ext_deps += devxlib
  
+diff --git a/drivers/common/mvep/meson.build b/drivers/common/mvep/meson.build
+index 0e17e100cd..29a2c532c9 100644
+--- a/drivers/common/mvep/meson.build
++++ b/drivers/common/mvep/meson.build
+@@ -12,9 +12,7 @@ endif
+ 
+ dep = dependency('libmusdk', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libmusdk"'
+-    subdir_done()
++    error('missing dependency: "libmusdk"')
+ endif
+ 
+ ext_deps += dep
+diff --git a/drivers/compress/isal/meson.build b/drivers/compress/isal/meson.build
+index 4b3eaa2274..55b76113fc 100644
+--- a/drivers/compress/isal/meson.build
++++ b/drivers/compress/isal/meson.build
+@@ -3,8 +3,7 @@
+ 
+ dep = dependency('libisal', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libisal"'
++    error('missing dependency: "libisal"')
+ endif
+ 
+ deps += 'bus_vdev'
+diff --git a/drivers/compress/uadk/meson.build b/drivers/compress/uadk/meson.build
+index 32cadd02ea..c41589b0eb 100644
+--- a/drivers/compress/uadk/meson.build
++++ b/drivers/compress/uadk/meson.build
+@@ -15,16 +15,14 @@ sources = files(
+ deps += 'bus_vdev'
+ dep = dependency('libwd_comp', version: '>=2.9.1', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libwd_comp"'
++    error('missing dependency: "libwd_comp"')
+ else
+     ext_deps += dep
+ endif
+ 
+ dep = dependency('libwd', version: '>=2.9.1', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libwd"'
++    error('missing dependency: "libwd"')
+ else
+     ext_deps += dep
+ endif
+diff --git a/drivers/compress/zlib/meson.build b/drivers/compress/zlib/meson.build
+index f8937cad3e..c5272c0d87 100644
+--- a/drivers/compress/zlib/meson.build
++++ b/drivers/compress/zlib/meson.build
+@@ -3,8 +3,7 @@
+ 
+ dep = dependency('zlib', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "zlib"'
++    error('missing dependency: "zlib"')
+ endif
+ 
+ deps += 'bus_vdev'
+diff --git a/drivers/crypto/armv8/meson.build b/drivers/crypto/armv8/meson.build
+index a735eb511c..be921fa8dd 100644
+--- a/drivers/crypto/armv8/meson.build
++++ b/drivers/crypto/armv8/meson.build
+@@ -9,9 +9,7 @@ endif
+ 
+ dep = dependency('libAArch64crypto', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libAArch64crypto"'
+-    subdir_done()
++    error('missing dependency: "libAArch64crypto"')
+ endif
+ 
+ ext_deps += dep
+diff --git a/drivers/crypto/ccp/meson.build b/drivers/crypto/ccp/meson.build
+index a19c77a8d1..1d12469941 100644
+--- a/drivers/crypto/ccp/meson.build
++++ b/drivers/crypto/ccp/meson.build
+@@ -8,8 +8,7 @@ if not is_linux
+ endif
+ dep = dependency('libcrypto', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libcrypto"'
++    error('missing dependency: "libcrypto"')
+ endif
+ deps += 'bus_vdev'
+ deps += 'bus_pci'
+diff --git a/drivers/crypto/ipsec_mb/meson.build b/drivers/crypto/ipsec_mb/meson.build
+index 5fcff5b04b..865b0fc030 100644
+--- a/drivers/crypto/ipsec_mb/meson.build
++++ b/drivers/crypto/ipsec_mb/meson.build
+@@ -16,8 +16,7 @@ if arch_subdir == 'arm'
+ endif
+ lib = cc.find_library('IPSec_MB', required: false)
+ if not lib.found()
+-    build = false
+-    reason = 'missing dependency, "libIPSec_MB"'
++    error('missing dependency: "libIPSec_MB"')
+ # if the lib is found, check it's the right format
+ elif not cc.links(
+         'int main(void) {return 0;}', dependencies: lib)
+diff --git a/drivers/crypto/mvsam/meson.build b/drivers/crypto/mvsam/meson.build
+index 7fbdfb6ffe..5baa31fd2d 100644
+--- a/drivers/crypto/mvsam/meson.build
++++ b/drivers/crypto/mvsam/meson.build
+@@ -11,9 +11,7 @@ endif
+ 
+ dep = dependency('libmusdk', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libmusdk"'
+-    subdir_done()
++    error('missing dependency: "libmusdk"')
+ endif
+ 
+ ext_deps += dep
+diff --git a/drivers/crypto/openssl/meson.build b/drivers/crypto/openssl/meson.build
+index af469a9827..bc5d0a9143 100644
+--- a/drivers/crypto/openssl/meson.build
++++ b/drivers/crypto/openssl/meson.build
+@@ -9,8 +9,7 @@ endif
+ 
+ dep = dependency('libcrypto', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libcrypto"'
++    error('missing dependency: "libcrypto"')
+ endif
+ deps += 'bus_vdev'
+ sources = files('rte_openssl_pmd.c', 'rte_openssl_pmd_ops.c')
+diff --git a/drivers/crypto/uadk/meson.build b/drivers/crypto/uadk/meson.build
+index 778239f263..3e47d341ad 100644
+--- a/drivers/crypto/uadk/meson.build
++++ b/drivers/crypto/uadk/meson.build
+@@ -15,16 +15,14 @@ sources = files(
+ deps += 'bus_vdev'
+ dep = dependency('libwd_crypto', version: '>=2.9.1', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libwd_crypto"'
++    error('missing dependency: "libwd_crypto"')
+ else
+     ext_deps += dep
+ endif
+ 
+ dep = dependency('libwd', version: '>=2.9.1', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libwd"'
++    error('missing dependency: "libwd"')
+ else
+     ext_deps += dep
+ endif
+diff --git a/drivers/dma/dpaa2/meson.build b/drivers/dma/dpaa2/meson.build
+index 6f9b427793..8c2a91cdbf 100644
+--- a/drivers/dma/dpaa2/meson.build
++++ b/drivers/dma/dpaa2/meson.build
+@@ -7,7 +7,9 @@ if not is_linux
+ endif
+ 
+ build = dpdk_conf.has('RTE_MEMPOOL_DPAA2')
+-reason = 'missing dependency, DPDK DPAA2 mempool driver'
++if not build
++    error('missing dependency: DPDK DPAA2 mempool driver')
++endif
+ deps += ['dmadev', 'bus_fslmc', 'mempool_dpaa2', 'ring', 'kvargs']
+ sources = files('dpaa2_qdma.c')
+ 
+diff --git a/drivers/gpu/cuda/meson.build b/drivers/gpu/cuda/meson.build
+index d54473f148..fd0d8ca653 100644
+--- a/drivers/gpu/cuda/meson.build
++++ b/drivers/gpu/cuda/meson.build
+@@ -7,14 +7,10 @@ if not is_linux
+         subdir_done()
+ endif
+ if not cc.has_header('cuda.h')
+-        build = false
+-        reason = 'missing dependency, "cuda.h"'
+-        subdir_done()
++        error('missing dependency: "cuda.h"')
+ endif
+ if not cc.has_header('cudaTypedefs.h')
+-        build = false
+-        reason = 'missing dependency, "cudaTypedefs.h"'
+-        subdir_done()
++        error('missing dependency: "cudaTypedefs.h"')
+ endif
+ 
+ if cc.has_header('gdrapi.h')
+diff --git a/drivers/net/af_xdp/meson.build b/drivers/net/af_xdp/meson.build
+index b35888b869..181395a9f4 100644
+--- a/drivers/net/af_xdp/meson.build
++++ b/drivers/net/af_xdp/meson.build
+@@ -34,8 +34,7 @@ if cc.has_header('linux/if_xdp.h')
+         if bpf_dep.found() and cc.has_header('bpf/bpf.h')
+             ext_deps += bpf_dep
+         else
+-            build = false
+-            reason = 'missing dependency, libbpf'
++            error('missing dependency: "libbpf"')
+         endif
+     elif bpf_dep.found() and cc.has_header('bpf/xsk.h') and cc.has_header('bpf/bpf.h')
+         # libxdp not found. Rely solely on libbpf for xsk functionality
+@@ -45,16 +44,13 @@ if cc.has_header('linux/if_xdp.h')
+         if bpf_ver_dep.found()
+             ext_deps += bpf_dep
+         else
+-            build = false
+-            reason = 'missing dependency, "libxdp ' + libxdp_ver + '" or "libbpf <= v0.6.0"'
++            error('missing dependency: "libxdp ' + libxdp_ver + '" or "libbpf <= v0.6.0"')
+         endif
+     else
+-        build = false
+-        reason = 'missing dependency, "libxdp ' + libxdp_ver + '" and "libbpf"'
++        error('missing dependency: "libxdp ' + libxdp_ver + '" and "libbpf"')
+     endif
+ else
+-    build = false
+-    reason = 'missing header, "linux/if_xdp.h"'
++    error('missing header: "linux/if_xdp.h"')
+ endif
+ 
+ if build
+diff --git a/drivers/net/bnx2x/meson.build b/drivers/net/bnx2x/meson.build
+index bc66ab8032..263e983aad 100644
+--- a/drivers/net/bnx2x/meson.build
++++ b/drivers/net/bnx2x/meson.build
+@@ -9,7 +9,9 @@ endif
+ 
+ dep = dependency('zlib', required: false, method: 'pkg-config')
+ build = dep.found()
+-reason = 'missing dependency, "zlib"'
++if not build
++    error('missing dependency: "zlib"')
++endif
+ ext_deps += dep
+ cflags += '-DZLIB_CONST'
+ sources = files(
 diff --git a/drivers/net/intel/ipn3ke/meson.build b/drivers/net/intel/ipn3ke/meson.build
 index 23c4d36b4f..a29abb1f77 100644
 --- a/drivers/net/intel/ipn3ke/meson.build
@@ -148,6 +396,105 @@ index 1eb67f3c47..427e6e9f89 100644
      endif
  endforeach
  if static_ibverbs or dlopen_ibverbs
+diff --git a/drivers/net/mvneta/meson.build b/drivers/net/mvneta/meson.build
+index 2b0a94ddd0..2f6a981a45 100644
+--- a/drivers/net/mvneta/meson.build
++++ b/drivers/net/mvneta/meson.build
+@@ -11,9 +11,7 @@ endif
+ 
+ dep = dependency('libmusdk', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libmusdk"'
+-    subdir_done()
++    error('missing dependency: "libmusdk"')
+ endif
+ 
+ ext_deps += dep
+diff --git a/drivers/net/mvpp2/meson.build b/drivers/net/mvpp2/meson.build
+index 396e382128..b497ab0762 100644
+--- a/drivers/net/mvpp2/meson.build
++++ b/drivers/net/mvpp2/meson.build
+@@ -11,9 +11,7 @@ endif
+ 
+ dep = dependency('libmusdk', required: false, method: 'pkg-config')
+ if not dep.found()
+-    build = false
+-    reason = 'missing dependency, "libmusdk"'
+-    subdir_done()
++    error('missing dependency: "libmusdk"')
+ endif
+ 
+ ext_deps += dep
+diff --git a/drivers/net/nfb/meson.build b/drivers/net/nfb/meson.build
+index b57d1d48fa..4334cd10e0 100644
+--- a/drivers/net/nfb/meson.build
++++ b/drivers/net/nfb/meson.build
+@@ -10,8 +10,11 @@ if is_windows
+ endif
+ 
+ dep = dependency('netcope-common', required: false, method: 'pkg-config')
+-reason = 'missing dependency, "libnfb"'
+ build = dep.found()
++if not build
++    error('missing dependency: "libnfb"')
++endif
++
+ ext_deps += dep
+ 
+ sources = files(
+diff --git a/drivers/net/pcap/meson.build b/drivers/net/pcap/meson.build
+index f30fc8338b..ceb42bbd90 100644
+--- a/drivers/net/pcap/meson.build
++++ b/drivers/net/pcap/meson.build
+@@ -2,8 +2,7 @@
+ # Copyright(c) 2017 Intel Corporation
+ 
+ if not dpdk_conf.has('RTE_HAS_LIBPCAP')
+-    build = false
+-    reason = 'missing dependency, "libpcap"'
++    error('missing dependency: "libpcap"')
+ endif
+ 
+ sources = files(
+diff --git a/drivers/net/sfc/meson.build b/drivers/net/sfc/meson.build
+index 90c38231e1..a76cc109f4 100644
+--- a/drivers/net/sfc/meson.build
++++ b/drivers/net/sfc/meson.build
+@@ -57,17 +57,13 @@ int main(void)
+ if not cc.links(atomic_check_code)
+     libatomic_dep = cc.find_library('atomic', required: false)
+     if not libatomic_dep.found()
+-        build = false
+-        reason = 'missing dependency, "libatomic"'
+-        subdir_done()
++        error('missing dependency: "libatomic"')
+     endif
+ 
+     # libatomic could be half-installed when above check finds it but
+     # linkage fails
+     if not cc.links(atomic_check_code, dependencies: libatomic_dep)
+-        build = false
+-        reason = 'broken dependency, "libatomic"'
+-        subdir_done()
++        error('broken dependency: "libatomic"')
+     endif
+     ext_deps += libatomic_dep
+ endif
+diff --git a/drivers/power/amd_uncore/meson.build b/drivers/power/amd_uncore/meson.build
+index cab260b64e..8a9ebe0532 100644
+--- a/drivers/power/amd_uncore/meson.build
++++ b/drivers/power/amd_uncore/meson.build
+@@ -10,8 +10,7 @@ endif
+ ESMI_header = '#include<e_smi/e_smi.h>'
+ lib = cc.find_library('e_smi64', required: false)
+ if not lib.found() or not cc.links(min_c_code, dependencies: lib)
+-    build = false
+-    reason = 'missing dependency, "libe_smi"'
++    error('missing dependency: "libe_smi"')
+ else
+     ext_deps += lib
+ endif
 diff --git a/drivers/raw/ifpga/meson.build b/drivers/raw/ifpga/meson.build
 index 8d5f41fd5d..84c8c875b3 100644
 --- a/drivers/raw/ifpga/meson.build

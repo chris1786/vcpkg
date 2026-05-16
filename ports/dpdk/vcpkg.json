@@ -57,6 +57,19 @@
         "rdma-core"
       ]
     },
+    "pmd-pcap": {
+      "description": "Build PCAP Poll Mode Driver",
+      "dependencies": [
+        {
+          "name": "libpcap",
+          "platform": "!windows"
+        },
+        {
+          "name": "winpcap",
+          "platform": "windows"
+        }
+      ]
+    },
     "rawdev-ifpga": {
       "description": "Build the IFPGA Rawdev Driver",
       "supports": "!windows",
