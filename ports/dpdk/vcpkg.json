@@ -84,6 +84,13 @@
         }
       ]
     },
+    "qat": {
+      "description": "Build Intel QuickAssist drivers",
+      "supports": "!windows",
+      "dependencies": [
+        "openssl"
+      ]
+    },
     "rawdev-ifpga": {
       "description": "Build the IFPGA Rawdev Driver",
       "supports": "!windows",
