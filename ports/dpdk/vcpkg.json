@@ -63,6 +63,13 @@
         "openssl"
       ]
     },
+    "pmd-crypto-ipsecmb": {
+      "description": "Build Intel IPSec_MB Poll Mode Driver",
+      "supports": "linux & x64",
+      "dependencies": [
+        "intel-ipsec"
+      ]
+    },
     "pmd-crypto-openssl": {
       "description": "Build OpenSSL Crypto Poll Mode Driver",
       "supports": "!windows",
