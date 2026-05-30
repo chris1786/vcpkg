@@ -122,6 +122,9 @@ endif()
 if(NOT "rawdev-ifpga" IN_LIST FEATURES)
   string(APPEND DISABLE_DRIVERS ",raw/ifpga")
 endif()
+if(NOT "pmd-sfc" IN_LIST FEATURES)
+  string(APPEND DISABLE_DRIVERS ",net/sfc")
+endif()
 
 vcpkg_configure_meson(SOURCE_PATH "${SOURCE_PATH}"
   OPTIONS

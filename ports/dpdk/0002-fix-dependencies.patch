@@ -252,6 +252,19 @@ index f30fc8338b..ceb42bbd90 100644
  endif
  
  sources = files(
+diff --git a/drivers/net/sfc/meson.build b/drivers/net/sfc/meson.build
+index 90c38231e1..8b09000a95 100644
+--- a/drivers/net/sfc/meson.build
++++ b/drivers/net/sfc/meson.build
+@@ -55,7 +55,7 @@ int main(void)
+ }
+ '''
+ if not cc.links(atomic_check_code)
+-    libatomic_dep = cc.find_library('atomic', required: false)
++    libatomic_dep = cc.find_library('atomic', required: true)
+     if not libatomic_dep.found()
+         build = false
+         reason = 'missing dependency, "libatomic"'
 diff --git a/drivers/raw/ifpga/meson.build b/drivers/raw/ifpga/meson.build
 index 8d5f41fd5d..e312c0dfd4 100644
 --- a/drivers/raw/ifpga/meson.build

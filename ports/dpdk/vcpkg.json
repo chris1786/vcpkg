@@ -105,6 +105,10 @@
         "libpcap"
       ]
     },
+    "pmd-sfc": {
+      "description": "Solarflare libefx-based Poll Mode Driver",
+      "supports": "!windows & (x64 | arm64)"
+    },
     "qat": {
       "description": "Build Intel QuickAssist drivers",
       "supports": "!windows",
