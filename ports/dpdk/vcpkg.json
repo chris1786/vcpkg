@@ -29,6 +29,13 @@
     "docs": {
       "description": "Build and install docs"
     },
+    "gpu-cuda": {
+      "description": "Build CUDA GPU Driver",
+      "supports": "linux",
+      "dependencies": [
+        "cuda"
+      ]
+    },
     "mlx5": {
       "description": "Build NVIDIA MLX5 drivers",
       "supports": "linux",
